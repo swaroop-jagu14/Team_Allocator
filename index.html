@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Allocator</title>
+  <style>
+    * {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  display: flex;
+  padding: 1rem;
+  background: #4f7454;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  background:white;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 10px 10px 10px rgba(5, 0, 0, 0.356);
+}
+
+h2 {
+  text-align: center;
+}
+
+textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #883030;
+  margin-bottom: 0.5rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  width: 100%;
+  background: #1d4f36;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+button:hover {
+  background:#668b69;
+}
+
+.team,
+.joker,
+.box-game,
+#startBoxBtn,
+.toss-area {
+  margin-top: 1rem;
+  display: none;
+}
+
+.team {
+  padding: 0.5rem;
+  border: 1px solid #883030;
+  border-radius: 0.5rem;
+  background: #fafafa;
+}
+
+.joker {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+}
+
+.boxes {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+
+.box {
+  width: 80px;
+  height: 80px;
+  border: 2px solid #883030;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background: #e0e0e0;
+  cursor: pointer;
+  font-size: 2rem;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2); /* added shadow */
+}
+
+.box:hover {
+  background: #a8a8bc;
+}
+
+.result {
+  text-align: center;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+.play-again {
+  display: none;
+  margin-top: 1rem;
+}
+
+.toss-area button {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Team Allocator</h2>
+    <textarea id="playerList" rows="5" placeholder="Enter player names, one per line"></textarea>
+    <button onclick="allocateTeams()">Allocate Teams</button>
+
+    <div class="team" id="teamA"></div>
+    <div class="team" id="teamB"></div>
+    <div class="joker" id="joker"></div>
+
+    <div class="toss-area" id="tossArea">
+      <p style="text-align:center;" id="chosenPlayerDisplay"></p>
+      <button onclick="playTossGame()">Play Toss Game 🎲</button>
+      <div class="result" id="tossResult"></div>
+    </div>
+
+    <div class="box-game" id="boxGame">
+      <p style="text-align:center;">Pick one of the boxes. One of them hides a ball 🎱</p>
+      <div class="boxes">
+        <div class="box" onclick="chooseBox(0)">🎁</div>
+        <div class="box" onclick="chooseBox(1)">🎁</div>
+      </div>
+      <div class="result" id="boxResult"></div>
+      <button class="play-again" id="playAgainBtn" onclick="startBoxGame()">Play Again 🔁</button>
+    </div>
+  </div>
+
+  <script>
+    let teamA = [];
+    let teamB = [];
+    let chosenPlayer = '';
+    let chosenTeam = '';
+
+    function allocateTeams() {
+      const input = document.getElementById('playerList').value.trim();
+      let players = input.split('\n').map(name => name.trim()).filter(name => name);
+      if (players.length === 0) return;
+
+      for (let i = players.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [players[i], players[j]] = [players[j], players[i]];
+      }
+
+      teamA = [];
+      teamB = [];
+
+      const teamADiv = document.getElementById('teamA');
+      const teamBDiv = document.getElementById('teamB');
+      const jokerDiv = document.getElementById('joker');
+
+      teamADiv.innerHTML = '<h3>Team A</h3><ul></ul>';
+      teamBDiv.innerHTML = '<h3>Team B</h3><ul></ul>';
+      jokerDiv.textContent = '';
+
+      let joker = null;
+      if (players.length % 2 !== 0) {
+        joker = players.pop();
+        jokerDiv.textContent = `Joker: ${joker}`;
+      }
+
+      players.forEach((player, index) => {
+        if (index % 2 === 0) teamA.push(player);
+        else teamB.push(player);
+      });
+
+      const teamAList = teamADiv.querySelector('ul');
+      const teamBList = teamBDiv.querySelector('ul');
+
+      teamA.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p;
+        teamAList.appendChild(li);
+      });
+
+      teamB.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p;
+        teamBList.appendChild(li);
+      });
+
+      document.getElementById('teamA').style.display = 'block';
+      document.getElementById('teamB').style.display = 'block';
+      document.getElementById('joker').style.display = 'block';
+      document.getElementById('tossArea').style.display = 'block';
+
+      const allPlayers = [...teamA, ...teamB];
+      const randomPlayer = allPlayers[Math.floor(Math.random() * allPlayers.length)];
+      chosenPlayer = randomPlayer;
+      chosenTeam = teamA.includes(randomPlayer) ? 'Team A' : 'Team B';
+
+      document.getElementById('chosenPlayerDisplay').textContent = `${chosenPlayer} will play the toss game`;
+    }
+
+    function playTossGame() {
+      startBoxGame();
+    }
+
+    function startBoxGame() {
+      document.getElementById('boxGame').style.display = 'block';
+      document.getElementById('boxResult').textContent = '';
+      document.getElementById('playAgainBtn').style.display = 'none';
+      window.boxWithBall = Math.floor(Math.random() * 2); // changed from 3 to 2
+    }
+
+    function chooseBox(index) {
+      const resultDiv = document.getElementById('boxResult');
+      const playAgainBtn = document.getElementById('playAgainBtn');
+
+      if (index === window.boxWithBall) {
+        resultDiv.textContent = `🎉 ${chosenTeam} won the toss! (${chosenPlayer} found the ball)`;
+      } else {
+        const otherTeam = chosenTeam === 'Team A' ? 'Team B' : 'Team A';
+        resultDiv.textContent = `😢 ${otherTeam} won the toss! (${chosenPlayer} missed the ball)`;
+      }
+
+      playAgainBtn.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
