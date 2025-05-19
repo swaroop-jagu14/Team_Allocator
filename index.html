@@ -1,243 +1,319 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Team Allocator</title>
-  <style>
-    * {
-  box-sizing: border-box;
-}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shuttle & Team Allocator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #af4a00, #fffdc4);
+            color: #2c2c2c;
+        }
 
-body {
-  font-family: sans-serif;
-  margin: 0;
-  display: flex;
-  padding: 1rem;
-  background: #4f7454;
-  justify-content: center;
-  align-items: center;
-  width: 100vw;
-  height: 100vh;
-}
+        header {
+            text-align: center;
+            padding: 30px;
+            background-color: #af4a00;
+            color: #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
 
-.container {
-  max-width: 500px;
-  margin: auto;
-  background:white;
-  padding: 1rem;
-  border-radius: 1rem;
-  box-shadow: 10px 10px 10px rgba(5, 0, 0, 0.356);
-}
+        .tabs {
+            display: flex;
+            justify-content: center;
+            background-color: #af4a00;
+            padding: 10px 0;
+        }
 
-h2 {
-  text-align: center;
-}
+        .tabs button {
+            padding: 10px 25px;
+            margin: 0 10px;
+            border: none;
+            background-color: #fffdc4;
+            color: #af4a00;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
 
-textarea {
-  width: 100%;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid #883030;
-  margin-bottom: 0.5rem;
-}
+        .tabs button.active, .tabs button:hover {
+            background-color: #af4a00;
+            color: #fffdc4;
+        }
 
-button {
-  padding: 0.5rem 1rem;
-  width: 100%;
-  background: #1d4f36;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  margin-top: 0.5rem;
-}
+        .content {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #fffdc4;
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
 
-button:hover {
-  background:#668b69;
-}
+        textarea, select, button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #af4a00;
+            box-sizing: border-box;
+        }
 
-.team,
-.joker,
-.box-game,
-#startBoxBtn,
-.toss-area {
-  margin-top: 1rem;
-  display: none;
-}
+        button {
+            background-color: #af4a00;
+            color: #fffdc4;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
 
-.team {
-  padding: 0.5rem;
-  border: 1px solid #883030;
-  border-radius: 0.5rem;
-  background: #fafafa;
-}
+        button:hover {
+            background-color: #a04000;
+        }
 
-.joker {
-  color: red;
-  font-weight: bold;
-  text-align: center;
-}
+        .box-result {
+            background-color: #fff;
+            padding: 15px;
+            border: 1px solid #af4a00;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
 
-.boxes {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 1rem;
-}
+        .team-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
 
-.box {
-  width: 80px;
-  height: 80px;
-  border: 2px solid #883030;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.5rem;
-  background: #e0e0e0;
-  cursor: pointer;
-  font-size: 2rem;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2); /* added shadow */
-}
+        .joker {
+            font-style: italic;
+            color: #af4a00;
+            margin-top: 10px;
+        }
 
-.box:hover {
-  background: #a8a8bc;
-}
+        .toss-area {
+            text-align: center;
+            margin-top: 30px;
+        }
 
-.result {
-  text-align: center;
-  margin-top: 1rem;
-  font-weight: bold;
-}
+        .result {
+            font-weight: bold;
+            margin-top: 10px;
+        }
 
-.play-again {
-  display: none;
-  margin-top: 1rem;
-}
+        .boxes {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
 
-.toss-area button {
-  width: 100%;
-  margin-bottom: 0.5rem;
-}
+        .box {
+            cursor: pointer;
+            font-size: 2rem;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #af4a00;
+            background-color: #fffdc4;
+            transition: all 0.3s ease;
+            width: 80px;
+            text-align: center;
+        }
 
-  </style>
+        .box:hover {
+            background-color: #ffe08a;
+        }
+
+        .play-again {
+            margin-top: 20px;
+            padding: 10px 25px;
+            border-radius: 8px;
+            background-color: #af4a00;
+            font-size: 1rem;
+            color: #fffdc4;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Team Allocator</h2>
-    <textarea id="playerList" rows="5" placeholder="Enter player names, one per line"></textarea>
-    <button onclick="allocateTeams()">Allocate Teams</button>
+    <header>
+        <h1>Team Allocator</h1>
+        <p>ALL THE BEST!! 👍</p>
+    </header>
 
-    <div class="team" id="teamA"></div>
-    <div class="team" id="teamB"></div>
-    <div class="joker" id="joker"></div>
-
-    <div class="toss-area" id="tossArea">
-      <p style="text-align:center;" id="chosenPlayerDisplay"></p>
-      <button onclick="playTossGame()">Play Toss Game 🎲</button>
-      <div class="result" id="tossResult"></div>
+    <div class="tabs">
+        <button id="shuttleTab" class="active" onclick="showTab('shuttle')">Shuttle</button>
+        <button id="teamAllocatorTab" onclick="showTab('teamAllocator')">Team Allocator</button>
     </div>
 
-    <div class="box-game" id="boxGame">
-      <p style="text-align:center;">Pick one of the boxes. One of them hides a ball 🎱</p>
-      <div class="boxes">
-        <div class="box" onclick="chooseBox(0)">🎁</div>
-        <div class="box" onclick="chooseBox(1)">🎁</div>
-      </div>
-      <div class="result" id="boxResult"></div>
-      <button class="play-again" id="playAgainBtn" onclick="startBoxGame()">Play Again 🔁</button>
+    <!-- Shuttle Section -->
+    <div id="shuttleContent" class="content">
+        <h2>Shuttle Game Setup</h2>
+        <textarea id="shuttlePlayerList" rows="5" placeholder="Enter player names, one per line"></textarea>
+        <select id="shuttleTeamSize">
+            <option value="1">1 vs 1</option>
+            <option value="2">2 vs 2</option>
+        </select>
+        <button onclick="generateShuttleTeams()">Create Teams</button>
+        <div>
+            <div class="team-name">Teams:</div>
+            <div id="shuttleTeamsResult" class="box-result"></div>
+        </div>
+        <div>
+            <div class="team-name">Tournament Schedule:</div>
+            <div id="shuttleScheduleResult" class="box-result"></div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    let teamA = [];
-    let teamB = [];
-    let chosenPlayer = '';
-    let chosenTeam = '';
+    <!-- Team Allocator Section -->
+    <div id="teamAllocatorContent" class="content" style="display: none;">
+        <h2>Team Allocator</h2>
+        <textarea id="playerList" rows="5" placeholder="Enter player names, one per line"></textarea>
+        <button onclick="allocateTeams()">Allocate Teams</button>
+        <div class="team-name">Team A:</div>
+        <div id="teamA" class="box-result"></div>
+        <div class="team-name">Team B:</div>
+        <div id="teamB" class="box-result"></div>
+        <div id="joker" class="joker"></div>
+        <div class="toss-area" id="tossArea" style="display:none;">
+            <p id="chosenPlayerDisplay"></p>
+            <button onclick="playTossGame()">Play Toss Game 🎲</button>
+            <div class="result" id="tossResult"></div>
+        </div>
+        <div class="box-game" id="boxGame" style="display:none;">
+            <p>Pick one of the boxes. One of them hides a ball 🎱</p>
+            <div class="boxes">
+                <div class="box" onclick="chooseBox(0)" id="box0">🎁</div>
+                <div class="box" onclick="chooseBox(1)" id="box1">🎁</div>
+            </div>
+            <div class="result" id="boxResult"></div>
+            <button class="play-again" id="playAgainBtn" onclick="startBoxGame()">Play Again 🔁</button>
+        </div>
+    </div>
 
-    function allocateTeams() {
-      const input = document.getElementById('playerList').value.trim();
-      let players = input.split('\n').map(name => name.trim()).filter(name => name);
-      if (players.length === 0) return;
+    <script>
+        function showTab(tabName) {
+            const tabs = ['shuttle', 'teamAllocator'];
+            tabs.forEach(name => {
+                document.getElementById(`${name}Content`).style.display = name === tabName ? 'block' : 'none';
+                document.getElementById(`${name}Tab`).classList.toggle('active', name === tabName);
+            });
+        }
 
-      for (let i = players.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [players[i], players[j]] = [players[j], players[i]];
-      }
+        function generateShuttleTeams() {
+            const playersRaw = document.getElementById('shuttlePlayerList').value.trim();
+            if (!playersRaw) return alert('Please enter player names.');
 
-      teamA = [];
-      teamB = [];
+            const players = playersRaw.split('\n').map(p => p.trim()).filter(p => p);
+            const teamSize = parseInt(document.getElementById('shuttleTeamSize').value);
+            if (players.length < 2) return alert('At least two players needed.');
 
-      const teamADiv = document.getElementById('teamA');
-      const teamBDiv = document.getElementById('teamB');
-      const jokerDiv = document.getElementById('joker');
+            for (let i = players.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [players[i], players[j]] = [players[j], players[i]];
+            }
 
-      teamADiv.innerHTML = '<h3>Team A</h3><ul></ul>';
-      teamBDiv.innerHTML = '<h3>Team B</h3><ul></ul>';
-      jokerDiv.textContent = '';
+            const teams = [], teamNames = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+            for (let i = 0; i < players.length; i += teamSize)
+                teams.push(players.slice(i, i + teamSize));
 
-      let joker = null;
-      if (players.length % 2 !== 0) {
-        joker = players.pop();
-        jokerDiv.textContent = `Joker: ${joker}`;
-      }
+            let teamsOutput = teams.map((team, i) => `Team ${teamNames[i]} - ${team.join(', ')}`).join('\n');
 
-      players.forEach((player, index) => {
-        if (index % 2 === 0) teamA.push(player);
-        else teamB.push(player);
-      });
+            let schedule = [];
+            for (let a = 0; a < teams.length; a++) {
+                for (let b = a + 1; b < teams.length; b++) {
+                    schedule.push(`Team ${teamNames[a]} vs Team ${teamNames[b]}`);
+                }
+            }
 
-      const teamAList = teamADiv.querySelector('ul');
-      const teamBList = teamBDiv.querySelector('ul');
+            for (let i = schedule.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [schedule[i], schedule[j]] = [schedule[j], schedule[i]];
+            }
 
-      teamA.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = p;
-        teamAList.appendChild(li);
-      });
+            document.getElementById('shuttleTeamsResult').textContent = teamsOutput;
+            document.getElementById('shuttleScheduleResult').textContent = schedule.join('\n') || "No matches possible.";
+        }
 
-      teamB.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = p;
-        teamBList.appendChild(li);
-      });
+        function allocateTeams() {
+            const playersRaw = document.getElementById('playerList').value.trim();
+            if (!playersRaw) return alert('Please enter player names.');
 
-      document.getElementById('teamA').style.display = 'block';
-      document.getElementById('teamB').style.display = 'block';
-      document.getElementById('joker').style.display = 'block';
-      document.getElementById('tossArea').style.display = 'block';
+            const players = playersRaw.split('\n').map(p => p.trim()).filter(p => p);
+            if (players.length < 2) return alert('At least 2 players are needed.');
 
-      const allPlayers = [...teamA, ...teamB];
-      const randomPlayer = allPlayers[Math.floor(Math.random() * allPlayers.length)];
-      chosenPlayer = randomPlayer;
-      chosenTeam = teamA.includes(randomPlayer) ? 'Team A' : 'Team B';
+            for (let i = players.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [players[i], players[j]] = [players[j], players[i]];
+            }
 
-      document.getElementById('chosenPlayerDisplay').textContent = `${chosenPlayer} will play the toss game`;
-    }
+            let joker = null;
+            if (players.length % 2 !== 0) joker = players.pop();
 
-    function playTossGame() {
-      startBoxGame();
-    }
+            const mid = players.length / 2;
+            document.getElementById('teamA').textContent = players.slice(0, mid).join(', ');
+            document.getElementById('teamB').textContent = players.slice(mid).join(', ');
+            document.getElementById('joker').textContent = joker ? `Joker Player: ${joker}` : '';
 
-    function startBoxGame() {
-      document.getElementById('boxGame').style.display = 'block';
-      document.getElementById('boxResult').textContent = '';
-      document.getElementById('playAgainBtn').style.display = 'none';
-      window.boxWithBall = Math.floor(Math.random() * 2); // changed from 3 to 2
-    }
+            document.getElementById('tossArea').style.display = 'block';
+            document.getElementById('boxGame').style.display = 'none';
+            document.getElementById('playAgainBtn').style.display = 'none';
+            document.getElementById('chosenPlayerDisplay').textContent = '';
+        }
 
-    function chooseBox(index) {
-      const resultDiv = document.getElementById('boxResult');
-      const playAgainBtn = document.getElementById('playAgainBtn');
+        let ballBoxIndex = -1, gameActive = false;
 
-      if (index === window.boxWithBall) {
-        resultDiv.textContent = `🎉 ${chosenTeam} won the toss! (${chosenPlayer} found the ball)`;
-      } else {
-        const otherTeam = chosenTeam === 'Team A' ? 'Team B' : 'Team A';
-        resultDiv.textContent = `😢 ${otherTeam} won the toss! (${chosenPlayer} missed the ball)`;
-      }
+        function playTossGame() {
+            const players = [...document.getElementById('teamA').textContent.split(', '),
+                                             ...document.getElementById('teamB').textContent.split(', ')].filter(Boolean);
+            if (!players.length) return;
 
-      playAgainBtn.style.display = 'block';
-    }
-  </script>
+            const chosen = players[Math.floor(Math.random() * players.length)];
+            document.getElementById('chosenPlayerDisplay').textContent = `Player to toss: ${chosen}`;
+            document.getElementById('boxGame').style.display = 'block';
+            document.getElementById('boxResult').textContent = '';
+            document.getElementById('tossResult').textContent = '';
+            document.getElementById('playAgainBtn').style.display = 'none';
+
+            for (let i = 0; i < 2; i++) {
+                const box = document.getElementById(`box${i}`);
+                box.textContent = '🎁';
+                box.style.pointerEvents = 'auto';
+                box.style.backgroundColor = '#fffdc4';
+            }
+
+            ballBoxIndex = Math.floor(Math.random() * 2);
+            gameActive = true;
+        }
+
+        function chooseBox(selectedIndex) {
+            if (!gameActive) return;
+            gameActive = false;
+
+            for (let i = 0; i < 2; i++) {
+                const box = document.getElementById(`box${i}`);
+                box.textContent = i === ballBoxIndex ? '🎱' : '❌';
+                box.style.backgroundColor = i === ballBoxIndex ? 'lightgreen' : '#f8d7da';
+                box.style.pointerEvents = 'none';
+            }
+
+            document.getElementById('boxResult').textContent =
+                selectedIndex === ballBoxIndex ? 'Congratulations! You found the ball!' : 'Sorry, no ball here.';
+            document.getElementById('tossResult').textContent =
+                selectedIndex === ballBoxIndex ? 'You won the toss!' : 'You lost the toss.';
+            document.getElementById('playAgainBtn').style.display = 'inline-block';
+        }
+
+        function startBoxGame() {
+            playTossGame();
+        }
+    </script>
 </body>
 </html>
