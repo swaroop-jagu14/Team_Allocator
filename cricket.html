@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cricket Team Allocation</title>
+  <style>
+    /* Same styles as before (omitted here for brevity) */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f9ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      border: 2px solid #003366;
+      border-radius: 20px;
+      padding: 30px;
+      background-color: #ffffff;
+      width: 400px;
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-top: 15px;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      background-color: #003366;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .teams {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .teams h3 {
+      margin-bottom: 5px;
+    }
+
+    .joker {
+      color: red;
+      font-weight: bold;
+    }
+
+    #tossSection {
+      margin-top: 20px;
+      text-align: center;
+      user-select: none;
+    }
+
+    #coin {
+      margin: 20px auto;
+      width: 100px;
+      height: 100px;
+      position: relative;
+      perspective: 1000px;
+      cursor: default;
+    }
+
+    .coin-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ffd700, #b8860b);
+      box-shadow:
+        inset 5px 5px 10px #b8860b,
+        inset -5px -5px 10px #fffacd,
+        0 0 15px rgba(255, 215, 0, 0.6);
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 2s ease;
+    }
+
+    .coin-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 24px;
+      color: #5a3e00;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      user-select: none;
+      text-shadow: 1px 1px 2px #c2a500;
+    }
+
+    .coin-front {
+      background: radial-gradient(circle at center, #fffacd, #ffd700);
+    }
+
+    .coin-back {
+      background: radial-gradient(circle at center, #b8860b, #8b6508);
+      transform: rotateY(180deg);
+    }
+
+    #heads, #tails {
+      background-color: #003366;
+      margin: 0 10px;
+      width: 100px;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-block;
+      user-select: none;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    #heads:hover, #tails:hover {
+      background-color: #0055cc;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Enter Player Names</h2>
+    <p>(One name per line)</p>
+    <textarea id="playerInput" placeholder="Player1&#10;Player2&#10;Player3..."></textarea>
+    <br />
+    <button onclick="allocateTeams()">Allocate Teams</button>
+
+    <div class="teams" id="output"></div>
+
+    <div id="tossSection" style="display:none;">
+      <p id="tossPlayer"></p>
+      <div>
+        <span id="heads">Heads</span>
+        <span id="tails">Tails</span>
+      </div>
+      <div id="coin">
+        <div class="coin-inner" id="coinInner">
+          <div class="coin-face coin-front">Heads</div>
+          <div class="coin-face coin-back">Tails</div>
+        </div>
+      </div>
+      <div id="message"></div>
+    </div>
+  </div>
+
+  <script>
+    let allPlayers = [];
+    let selectedPlayer = null;
+    let playerChoice = null;
+
+    function allocateTeams() {
+      const input = document.getElementById("playerInput").value.trim();
+      let players = input
+        .split("\n")
+        .map((name) => name.trim())
+        .filter((name) => name !== "");
+
+      const output = document.getElementById("output");
+      output.innerHTML = "";
+      document.getElementById("tossSection").style.display = "none";
+      clearTossSection();
+
+      if (players.length === 0) {
+        output.innerHTML = "<p>Please enter at least one name.</p>";
+        return;
+      }
+
+      if (players.length === 2) {
+        const jokerIndex = Math.floor(Math.random() * 2);
+        const normalIndex = 1 - jokerIndex;
+        output.innerHTML = `
+          <p>Only 2 players found. Assigning randomly:</p>
+          <p><span class="joker">${players[jokerIndex]}</span> is the Joker</p>
+          <p>${players[normalIndex]} is the Player</p>
+        `;
+        allPlayers = [...players];
+        showTossButton();
+        return;
+      }
+
+      // Shuffle players for random allocation
+      for (let i = players.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [players[i], players[j]] = [players[j], players[i]];
+      }
+
+      // Randomly pick Joker if odd number of players
+      let joker = null;
+      if (players.length % 2 !== 0) {
+        const jokerIndex = Math.floor(Math.random() * players.length);
+        joker = players.splice(jokerIndex, 1)[0];
+      }
+
+      // Shuffle again to make teams random
+      for (let i = players.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [players[i], players[j]] = [players[j], players[i]];
+      }
+
+      // Split into two teams
+      const mid = Math.ceil(players.length / 2);
+      const team1 = players.slice(0, mid);
+      const team2 = players.slice(mid);
+
+      let html = "";
+      if (joker) {
+        html += `<p><span class="joker">${joker}</span> is the Joker</p>`;
+      }
+      html += `
+        <h3>Team A:</h3>
+        <ul>${team1.map((p) => `<li>${p}</li>`).join("")}</ul>
+        <h3>Team B:</h3>
+        <ul>${team2.map((p) => `<li>${p}</li>`).join("")}</ul>
+      `;
+      output.innerHTML = html;
+
+      allPlayers = joker ? [...team1, ...team2, joker] : [...team1, ...team2];
+      showTossButton();
+    }
+
+    // The rest of the code for toss button, coin flip remains the same
+    function showTossButton() {
+      const tossSection = document.getElementById("tossSection");
+      tossSection.style.display = "block";
+
+      selectedPlayer = allPlayers[Math.floor(Math.random() * allPlayers.length)];
+      document.getElementById("tossPlayer").textContent = `${selectedPlayer}, pick Heads or Tails:`;
+
+      document.getElementById("heads").style.pointerEvents = "auto";
+      document.getElementById("tails").style.pointerEvents = "auto";
+      document.getElementById("message").textContent = "";
+
+      resetCoin();
+
+      document.getElementById("heads").onclick = () => toss("Heads");
+      document.getElementById("tails").onclick = () => toss("Tails");
+    }
+
+    function clearTossSection() {
+      document.getElementById("tossPlayer").textContent = "";
+      document.getElementById("heads").onclick = null;
+      document.getElementById("tails").onclick = null;
+      document.getElementById("message").textContent = "";
+      resetCoin();
+    }
+
+    function resetCoin() {
+      const coinInner = document.getElementById("coinInner");
+      coinInner.style.transition = "none";
+      coinInner.style.transform = "rotateY(0deg)";
+      void coinInner.offsetWidth;
+      coinInner.style.transition = "";
+    }
+
+    function toss(choice) {
+      playerChoice = choice;
+
+      document.getElementById("heads").style.pointerEvents = "none";
+      document.getElementById("tails").style.pointerEvents = "none";
+
+      const coinInner = document.getElementById("coinInner");
+      coinInner.style.transition = "transform 2s ease";
+
+      const isHeads = Math.random() < 0.5;
+      const finalRotation = 1440 + (isHeads ? 0 : 180);
+
+      setTimeout(() => {
+        coinInner.style.transform = `rotateY(${finalRotation}deg)`;
+      }, 100);
+
+      setTimeout(() => {
+        const result = isHeads ? "Heads" : "Tails";
+        const message = document.getElementById("message");
+        if (result === playerChoice) {
+          message.textContent = `You won the toss! (${result})`;
+          message.style.color = "green";
+        } else {
+          message.textContent = `You lost the toss! (${result})`;
+          message.style.color = "red";
+        }
+      }, 2100);
+    }
+  </script>
+</body>
+</html>
