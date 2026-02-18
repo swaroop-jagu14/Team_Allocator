@@ -4,137 +4,178 @@
   <meta charset="UTF-8" />
   <title>Cricket Team Allocation</title>
   <style>
-    /* Same styles as before (omitted here for brevity) */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f9ff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Comic Neue', cursive;
+}
 
-    .box {
-      border: 2px solid #003366;
-      border-radius: 20px;
-      padding: 30px;
-      background-color: #ffffff;
-      width: 400px;
-      text-align: center;
-    }
+body{
+    min-height:100vh;
+    background:url("https://images.pexels.com/photos/399187/pexels-photo-399187.jpeg?auto=compress&cs=tinysrgb&w=1920") no-repeat center center/cover;
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    padding:20px;
+}
 
-    textarea {
-      width: 100%;
-      height: 150px;
-      margin-top: 15px;
-      padding: 10px;
-      font-size: 16px;
-    }
+body::before{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
+    z-index:0;
+}
 
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      font-size: 18px;
-      border: none;
-      background-color: #003366;
-      color: white;
-      border-radius: 10px;
-      cursor: pointer;
-    }
 
-    .teams {
-      margin-top: 20px;
-      text-align: left;
-    }
+.box{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:600px;
+    background:rgba(0,0,0,0.35);
+    padding:40px;
+    border-radius:25px;
+    backdrop-filter:blur(15px);
+    box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    text-align:center;
+}
 
-    .teams h3 {
-      margin-bottom: 5px;
-    }
+h2{
+    margin-bottom:15px;
+    font-size:32px;
+}
 
-    .joker {
-      color: red;
-      font-weight: bold;
-    }
+p{
+    margin-bottom:10px;
+}
 
-    #tossSection {
-      margin-top: 20px;
-      text-align: center;
-      user-select: none;
-    }
+textarea {
+  width: 80%;
+  height: 120px;
+  padding: 15px;
+  font-size: 18px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  resize: none;
 
-    #coin {
-      margin: 20px auto;
-      width: 100px;
-      height: 100px;
-      position: relative;
-      perspective: 1000px;
-      cursor: default;
-    }
+  white-space: pre-wrap;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
 
-    .coin-inner {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: linear-gradient(145deg, #ffd700, #b8860b);
-      box-shadow:
-        inset 5px 5px 10px #b8860b,
-        inset -5px -5px 10px #fffacd,
-        0 0 15px rgba(255, 215, 0, 0.6);
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 2s ease;
-    }
+button{
+    padding:12px 25px;
+    margin:15px 5px;
+    border:none;
+    border-radius:30px;
+    font-size:18px;
+    cursor:pointer;
+    background:white;
+    color:black;
+    transition:0.3s ease;
+}
 
-    .coin-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-weight: bold;
-      font-size: 24px;
-      color: #5a3e00;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-      user-select: none;
-      text-shadow: 1px 1px 2px #c2a500;
-    }
+button:hover{
+    transform:scale(1.05);
+}
 
-    .coin-front {
-      background: radial-gradient(circle at center, #fffacd, #ffd700);
-    }
+.teams{
+    margin-top:30px;
+    text-align:left;
+}
 
-    .coin-back {
-      background: radial-gradient(circle at center, #b8860b, #8b6508);
-      transform: rotateY(180deg);
-    }
+.teams ul{
+    margin-left:20px;
+}
 
-    #heads, #tails {
-      background-color: #003366;
-      margin: 0 10px;
-      width: 100px;
-      padding: 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      display: inline-block;
-      user-select: none;
-      color: white;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
-    }
+.joker{
+    color:#ff4d4d;
+    font-weight:bold;
+}
 
-    #heads:hover, #tails:hover {
-      background-color: #0055cc;
-    }
+#tossSection{
+    margin-top:30px;
+    text-align:center;
+}
 
-    #message {
-      margin-top: 15px;
-      font-weight: bold;
-      font-size: 18px;
-    }
-  </style>
+#heads, #tails{
+    padding:10px 20px;
+    margin:10px;
+    border-radius:30px;
+    background:white;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    display:inline-block;
+    transition:0.3s ease;
+}
+
+#heads:hover, #tails:hover{
+    transform:scale(1.05);
+}
+
+#message{
+    margin-top:20px;
+    font-size:20px;
+    font-weight:bold;
+}
+#coin {
+  margin: 20px auto;
+  width: 120px;
+  height: 120px;
+  perspective: 1000px;
+}
+
+.coin-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 2.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.coin-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  font-weight: bold;
+  color: #5a3e00;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+
+.coin-front {
+  background: radial-gradient(circle at 30% 30%, #fff9c4, #f4b400);
+  box-shadow:
+    inset 5px 5px 10px #c49000,
+    inset -5px -5px 10px #fffacd,
+    0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+
+.coin-back {
+  background: radial-gradient(circle at 30% 30%, #ffe082, #d4a017);
+  transform: rotateY(180deg);
+  box-shadow:
+    inset 5px 5px 10px #a87900,
+    inset -5px -5px 10px #fffacd,
+    0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+</style>
+
 </head>
 <body>
   <div class="box">
@@ -197,26 +238,26 @@
         return;
       }
 
-      // Shuffle players for random allocation
+      
       for (let i = players.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [players[i], players[j]] = [players[j], players[i]];
       }
 
-      // Randomly pick Joker if odd number of players
+      
       let joker = null;
       if (players.length % 2 !== 0) {
         const jokerIndex = Math.floor(Math.random() * players.length);
         joker = players.splice(jokerIndex, 1)[0];
       }
 
-      // Shuffle again to make teams random
+      
       for (let i = players.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [players[i], players[j]] = [players[j], players[i]];
       }
 
-      // Split into two teams
+      
       const mid = Math.ceil(players.length / 2);
       const team1 = players.slice(0, mid);
       const team2 = players.slice(mid);
@@ -237,7 +278,7 @@
       showTossButton();
     }
 
-    // The rest of the code for toss button, coin flip remains the same
+    
     function showTossButton() {
       const tossSection = document.getElementById("tossSection");
       tossSection.style.display = "block";
@@ -272,33 +313,46 @@
     }
 
     function toss(choice) {
-      playerChoice = choice;
+  playerChoice = choice;
 
-      document.getElementById("heads").style.pointerEvents = "none";
-      document.getElementById("tails").style.pointerEvents = "none";
+  const headsBtn = document.getElementById("heads");
+  const tailsBtn = document.getElementById("tails");
+  const coinInner = document.getElementById("coinInner");
+  const message = document.getElementById("message");
 
-      const coinInner = document.getElementById("coinInner");
-      coinInner.style.transition = "transform 2s ease";
+  
+  headsBtn.style.pointerEvents = "none";
+  tailsBtn.style.pointerEvents = "none";
 
-      const isHeads = Math.random() < 0.5;
-      const finalRotation = 1440 + (isHeads ? 0 : 180);
+  message.textContent = "Flipping the coin...";
+  message.style.color = "white";
 
-      setTimeout(() => {
-        coinInner.style.transform = `rotateY(${finalRotation}deg)`;
-      }, 100);
+  
+  const isHeads = Math.random() < 0.5;
+  const result = isHeads ? "Heads" : "Tails";
 
-      setTimeout(() => {
-        const result = isHeads ? "Heads" : "Tails";
-        const message = document.getElementById("message");
-        if (result === playerChoice) {
-          message.textContent = `You won the toss! (${result})`;
-          message.style.color = "green";
-        } else {
-          message.textContent = `You lost the toss! (${result})`;
-          message.style.color = "red";
-        }
-      }, 2100);
+  
+  const spins = Math.floor(Math.random() * 4) + 5;
+  const finalRotation = spins * 360 + (isHeads ? 0 : 180);
+
+  coinInner.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
+  coinInner.style.transform = `rotateY(${finalRotation}deg)`;
+
+  setTimeout(() => {
+    if (result === playerChoice) {
+      message.textContent = `🎉 ${selectedPlayer} won the toss! (${result})`;
+      message.style.color = "lime";
+    } else {
+      message.textContent = `😢 ${selectedPlayer} lost the toss! (${result})`;
+      message.style.color = "red";
     }
+
+    
+    headsBtn.style.pointerEvents = "auto";
+    tailsBtn.style.pointerEvents = "auto";
+  }, 2600);
+}
+
   </script>
 </body>
 </html>
