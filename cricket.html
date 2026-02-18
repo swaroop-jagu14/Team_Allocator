@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Cricket Team Allocation</title>
 
-<!-- Comic Neue Font -->
 <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
 <style>
@@ -225,9 +224,24 @@ let allPlayers = [];
 let selectedPlayer = null;
 let playerChoice = null;
 
+function uniquePlayers(list){
+  let seen = new Set();
+  let result = [];
+  list.forEach(p=>{
+    let key = p.toLowerCase();
+    if(!seen.has(key)){
+      seen.add(key);
+      result.push(p);
+    }
+  });
+  return result;
+}
+
 function allocateTeams() {
   const input = document.getElementById("playerInput").value.trim();
   let players = input.split("\n").map(n => n.trim()).filter(n => n !== "");
+
+  players = uniquePlayers(players);
 
   const output = document.getElementById("output");
   output.innerHTML = "";
