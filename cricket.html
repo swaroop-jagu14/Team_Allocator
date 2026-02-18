@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Cricket Team Allocation</title>
-  <style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cricket Team Allocation</title>
+
+<!-- Correct font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:'Comic Neue', cursive;
 }
 
+/* SAME FONT EVERYWHERE */
 body{
     min-height:100vh;
     background:url("https://images.pexels.com/photos/399187/pexels-photo-399187.jpeg?auto=compress&cs=tinysrgb&w=1920") no-repeat center center/cover;
@@ -19,7 +24,8 @@ body{
     justify-content:center;
     align-items:center;
     color:white;
-    padding:20px;
+    padding:15px;
+    font-family: 'Poppins', sans-serif;
 }
 
 body::before{
@@ -31,42 +37,41 @@ body::before{
     z-index:0;
 }
 
-
 .box{
     position:relative;
     z-index:1;
     width:100%;
-    max-width:600px;
+    max-width:500px;
     background:rgba(0,0,0,0.35);
-    padding:40px;
+    padding:30px;
     border-radius:25px;
-    backdrop-filter:blur(15px);
+    backdrop-filter:blur(12px);
     box-shadow:0 10px 30px rgba(0,0,0,0.5);
     text-align:center;
 }
 
 h2{
-    margin-bottom:15px;
-    font-size:32px;
+    margin-bottom:10px;
+    font-size:28px;
+    font-weight:600;
 }
 
 p{
     margin-bottom:10px;
+    font-size:16px;
 }
 
 textarea {
-  width: 80%;
-  height: 120px;
-  padding: 15px;
-  font-size: 18px;
-  border-radius: 20px;
+  width: 90%;
+  max-width:100%;
+  height:120px;
+  padding:12px;
+  font-size:16px;
+  border-radius:15px;
   border: none;
   outline: none;
   resize: none;
-
-  white-space: pre-wrap;
-  word-break: normal;
-  overflow-wrap: break-word;
+  font-family: 'Poppins', sans-serif;
 }
 
 button{
@@ -74,11 +79,13 @@ button{
     margin:15px 5px;
     border:none;
     border-radius:30px;
-    font-size:18px;
+    font-size:16px;
     cursor:pointer;
     background:white;
     color:black;
     transition:0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    font-weight:600;
 }
 
 button:hover{
@@ -86,7 +93,7 @@ button:hover{
 }
 
 .teams{
-    margin-top:30px;
+    margin-top:20px;
     text-align:left;
 }
 
@@ -100,17 +107,17 @@ button:hover{
 }
 
 #tossSection{
-    margin-top:30px;
+    margin-top:20px;
     text-align:center;
 }
 
 #heads, #tails{
-    padding:10px 20px;
-    margin:10px;
+    padding:8px 18px;
+    margin:8px;
     border-radius:30px;
     background:white;
     color:black;
-    font-weight:bold;
+    font-weight:600;
     cursor:pointer;
     display:inline-block;
     transition:0.3s ease;
@@ -121,14 +128,15 @@ button:hover{
 }
 
 #message{
-    margin-top:20px;
-    font-size:20px;
-    font-weight:bold;
+    margin-top:15px;
+    font-size:18px;
+    font-weight:600;
 }
+
 #coin {
-  margin: 20px auto;
-  width: 120px;
-  height: 120px;
+  margin: 15px auto;
+  width: 100px;
+  height: 100px;
   perspective: 1000px;
 }
 
@@ -148,13 +156,12 @@ button:hover{
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 40px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight:600;
   color: #5a3e00;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  font-family: 'Poppins', sans-serif;
 }
-
 
 .coin-front {
   background: radial-gradient(circle at 30% 30%, #fff9c4, #f4b400);
@@ -163,7 +170,6 @@ button:hover{
     inset -5px -5px 10px #fffacd,
     0 8px 20px rgba(0, 0, 0, 0.5);
 }
-
 
 .coin-back {
   background: radial-gradient(circle at 30% 30%, #ffe082, #d4a017);
@@ -174,185 +180,179 @@ button:hover{
     0 8px 20px rgba(0, 0, 0, 0.5);
 }
 
+/* Mobile */
+@media screen and (max-width:480px){
+  .box{ padding:20px; }
+  h2{ font-size:24px; }
+  textarea{ font-size:14px; height:100px; }
+  button{ font-size:14px; padding:10px 18px; }
+  #message{ font-size:16px; }
+}
 </style>
-
 </head>
+
 <body>
-  <div class="box">
-    <h2>Enter Player Names</h2>
-    <p>(One name per line)</p>
-    <textarea id="playerInput" placeholder="Player1&#10;Player2&#10;Player3..."></textarea>
-    <br />
-    <button onclick="allocateTeams()">Allocate Teams</button>
 
-    <div class="teams" id="output"></div>
+<div class="box">
+  <h2>Enter Player Names</h2>
+  <p>(One name per line)</p>
 
-    <div id="tossSection" style="display:none;">
-      <p id="tossPlayer"></p>
-      <div>
-        <span id="heads">Heads</span>
-        <span id="tails">Tails</span>
-      </div>
-      <div id="coin">
-        <div class="coin-inner" id="coinInner">
-          <div class="coin-face coin-front">Heads</div>
-          <div class="coin-face coin-back">Tails</div>
-        </div>
-      </div>
-      <div id="message"></div>
+  <textarea id="playerInput"
+    placeholder="Player1&#10;Player2&#10;Player3..."></textarea>
+
+  <br />
+  <button onclick="allocateTeams()">Allocate Teams</button>
+
+  <div class="teams" id="output"></div>
+
+  <div id="tossSection" style="display:none;">
+    <p id="tossPlayer"></p>
+
+    <div>
+      <span id="heads">Heads</span>
+      <span id="tails">Tails</span>
     </div>
+
+    <div id="coin">
+      <div class="coin-inner" id="coinInner">
+        <div class="coin-face coin-front">Heads</div>
+        <div class="coin-face coin-back">Tails</div>
+      </div>
+    </div>
+
+    <div id="message"></div>
   </div>
+</div>
 
-  <script>
-    let allPlayers = [];
-    let selectedPlayer = null;
-    let playerChoice = null;
 
-    function allocateTeams() {
-      const input = document.getElementById("playerInput").value.trim();
-      let players = input
-        .split("\n")
-        .map((name) => name.trim())
-        .filter((name) => name !== "");
+<script>
+let allPlayers = [];
+let selectedPlayer = null;
+let playerChoice = null;
 
-      const output = document.getElementById("output");
-      output.innerHTML = "";
-      document.getElementById("tossSection").style.display = "none";
-      clearTossSection();
+function allocateTeams() {
+  const input = document.getElementById("playerInput").value.trim();
+  let players = input
+    .split("\n")
+    .map(name => name.trim())
+    .filter(name => name !== "");
 
-      if (players.length === 0) {
-        output.innerHTML = "<p>Please enter at least one name.</p>";
-        return;
-      }
+  const output = document.getElementById("output");
+  output.innerHTML = "";
+  document.getElementById("tossSection").style.display = "none";
+  clearTossSection();
 
-      if (players.length === 2) {
-        const jokerIndex = Math.floor(Math.random() * 2);
-        const normalIndex = 1 - jokerIndex;
-        output.innerHTML = `
-          <p>Only 2 players found. Assigning randomly:</p>
-          <p><span class="joker">${players[jokerIndex]}</span> is the Joker</p>
-          <p>${players[normalIndex]} is the Player</p>
-        `;
-        allPlayers = [...players];
-        showTossButton();
-        return;
-      }
+  if (players.length === 0) {
+    output.innerHTML = "<p>Please enter at least one name.</p>";
+    return;
+  }
 
-      
-      for (let i = players.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [players[i], players[j]] = [players[j], players[i]];
-      }
+  if (players.length === 2) {
+    const jokerIndex = Math.floor(Math.random() * 2);
+    const normalIndex = 1 - jokerIndex;
 
-      
-      let joker = null;
-      if (players.length % 2 !== 0) {
-        const jokerIndex = Math.floor(Math.random() * players.length);
-        joker = players.splice(jokerIndex, 1)[0];
-      }
+    output.innerHTML = `
+      <p>Only 2 players found. Assigning randomly:</p>
+      <p><span class="joker">${players[jokerIndex]}</span> is the Joker</p>
+      <p>${players[normalIndex]} is the Player</p>
+    `;
 
-      
-      for (let i = players.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [players[i], players[j]] = [players[j], players[i]];
-      }
+    allPlayers = [...players];
+    showTossButton();
+    return;
+  }
 
-      
-      const mid = Math.ceil(players.length / 2);
-      const team1 = players.slice(0, mid);
-      const team2 = players.slice(mid);
+  for (let i = players.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [players[i], players[j]] = [players[j], players[i]];
+  }
 
-      let html = "";
-      if (joker) {
-        html += `<p><span class="joker">${joker}</span> is the Joker</p>`;
-      }
-      html += `
-        <h3>Team A:</h3>
-        <ul>${team1.map((p) => `<li>${p}</li>`).join("")}</ul>
-        <h3>Team B:</h3>
-        <ul>${team2.map((p) => `<li>${p}</li>`).join("")}</ul>
-      `;
-      output.innerHTML = html;
+  let joker = null;
+  if (players.length % 2 !== 0) {
+    const jokerIndex = Math.floor(Math.random() * players.length);
+    joker = players.splice(jokerIndex, 1)[0];
+  }
 
-      allPlayers = joker ? [...team1, ...team2, joker] : [...team1, ...team2];
-      showTossButton();
-    }
+  const mid = Math.ceil(players.length / 2);
+  const team1 = players.slice(0, mid);
+  const team2 = players.slice(mid);
 
-    
-    function showTossButton() {
-      const tossSection = document.getElementById("tossSection");
-      tossSection.style.display = "block";
+  let html = "";
+  if (joker) {
+    html += `<p><span class="joker">${joker}</span> is the Joker</p>`;
+  }
 
-      selectedPlayer = allPlayers[Math.floor(Math.random() * allPlayers.length)];
-      document.getElementById("tossPlayer").textContent = `${selectedPlayer}, pick Heads or Tails:`;
+  html += `
+    <h3>Team A:</h3>
+    <ul>${team1.map(p => `<li>${p}</li>`).join("")}</ul>
+    <h3>Team B:</h3>
+    <ul>${team2.map(p => `<li>${p}</li>`).join("")}</ul>
+  `;
 
-      document.getElementById("heads").style.pointerEvents = "auto";
-      document.getElementById("tails").style.pointerEvents = "auto";
-      document.getElementById("message").textContent = "";
+  output.innerHTML = html;
+  allPlayers = joker ? [...team1, ...team2, joker] : [...team1, ...team2];
 
-      resetCoin();
+  showTossButton();
+}
 
-      document.getElementById("heads").onclick = () => toss("Heads");
-      document.getElementById("tails").onclick = () => toss("Tails");
-    }
+function showTossButton() {
+  const tossSection = document.getElementById("tossSection");
+  tossSection.style.display = "block";
 
-    function clearTossSection() {
-      document.getElementById("tossPlayer").textContent = "";
-      document.getElementById("heads").onclick = null;
-      document.getElementById("tails").onclick = null;
-      document.getElementById("message").textContent = "";
-      resetCoin();
-    }
+  selectedPlayer = allPlayers[Math.floor(Math.random() * allPlayers.length)];
+  document.getElementById("tossPlayer").textContent =
+    `${selectedPlayer}, pick Heads or Tails:`;
 
-    function resetCoin() {
-      const coinInner = document.getElementById("coinInner");
-      coinInner.style.transition = "none";
-      coinInner.style.transform = "rotateY(0deg)";
-      void coinInner.offsetWidth;
-      coinInner.style.transition = "";
-    }
+  document.getElementById("heads").onclick = () => toss("Heads");
+  document.getElementById("tails").onclick = () => toss("Tails");
 
-    function toss(choice) {
+  resetCoin();
+}
+
+function clearTossSection() {
+  document.getElementById("tossPlayer").textContent = "";
+  document.getElementById("message").textContent = "";
+  resetCoin();
+}
+
+function resetCoin() {
+  const coinInner = document.getElementById("coinInner");
+  coinInner.style.transition = "none";
+  coinInner.style.transform = "rotateY(0deg)";
+  void coinInner.offsetWidth;
+  coinInner.style.transition = "";
+}
+
+function toss(choice) {
   playerChoice = choice;
 
-  const headsBtn = document.getElementById("heads");
-  const tailsBtn = document.getElementById("tails");
   const coinInner = document.getElementById("coinInner");
   const message = document.getElementById("message");
-
-  
-  headsBtn.style.pointerEvents = "none";
-  tailsBtn.style.pointerEvents = "none";
 
   message.textContent = "Flipping the coin...";
   message.style.color = "white";
 
-  
   const isHeads = Math.random() < 0.5;
   const result = isHeads ? "Heads" : "Tails";
 
-  
   const spins = Math.floor(Math.random() * 4) + 5;
   const finalRotation = spins * 360 + (isHeads ? 0 : 180);
 
-  coinInner.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
   coinInner.style.transform = `rotateY(${finalRotation}deg)`;
 
   setTimeout(() => {
     if (result === playerChoice) {
-      message.textContent = `🎉 ${selectedPlayer} won the toss! (${result})`;
+      message.textContent =
+        `🎉 ${selectedPlayer} won the toss! (${result})`;
       message.style.color = "lime";
     } else {
-      message.textContent = `😢 ${selectedPlayer} lost the toss! (${result})`;
+      message.textContent =
+        `😢 ${selectedPlayer} lost the toss! (${result})`;
       message.style.color = "red";
     }
-
-    
-    headsBtn.style.pointerEvents = "auto";
-    tailsBtn.style.pointerEvents = "auto";
   }, 2600);
 }
+</script>
 
-  </script>
 </body>
 </html>
