@@ -99,29 +99,39 @@ td,th{
     padding:6px;
 }
 
-.champion-box{
-    margin:30px auto;
-    padding:25px 30px;
-    border-radius:20px;
-    text-align:center;
-    background:rgba(255,215,0,0.08);
-    border:1px solid rgba(255,215,0,0.4);
-    animation:championPop 0.6s ease;
-
-    max-width:350px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-}
 #champion{
     display:flex;
     justify-content:center;
-    align-items:center;
     width:100%;
 }
 
+.champion-box{
+    margin:30px auto;
+    padding:28px 32px;
+    border-radius:22px;
+    text-align:center;
+    background:rgba(255,215,0,0.08);
+    border:1px solid rgba(255,215,0,0.4);
+    max-width:380px;
+}
 
+.trophy{
+    font-size:60px;
+}
+
+.champion-text{
+    font-size:20px;
+    color:#ffd700;
+}
+
+.champion-name{
+    font-size:46px;
+    font-weight:bold;
+    background:linear-gradient(90deg,#ffd700,#fff3a0);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-top:8px;
+}
 </style>
 </head>
 
@@ -133,8 +143,7 @@ td,th{
 
 <p>Enter Player Names (One per line)</p>
 
-<textarea id="players"
-placeholder="Player1&#10;Player2&#10;Player3"></textarea>
+<textarea id="players" placeholder="Player1&#10;Player2&#10;Player3"></textarea>
 
 <br>
 <button onclick="allocateTeams()">Allocate Teams</button>
@@ -142,6 +151,7 @@ placeholder="Player1&#10;Player2&#10;Player3"></textarea>
 <div class="teams" id="teamOutput"></div>
 <div class="teams" id="leagueOutput"></div>
 <div class="teams" id="knockoutOutput"></div>
+<div id="champion"></div>
 
 </div>
 
@@ -159,10 +169,33 @@ function shuffle(arr){
     }
 }
 
+function safeId(name){
+    return name.replace(/[^a-zA-Z0-9]/g,"");
+}
+
+function uniquePlayers(list){
+    let seen=new Set();
+    let result=[];
+    list.forEach(p=>{
+        let key=p.toLowerCase();
+        if(!seen.has(key)){
+            seen.add(key);
+            result.push(p);
+        }
+    });
+    return result;
+}
+
 function allocateTeams(){
 
+    document.getElementById("champion").innerHTML="";
+
     let players=document.getElementById("players").value.trim()
-        .split("\n").map(p=>p.trim()).filter(p=>p!="");
+        .split("\n")
+        .map(p=>p.trim())
+        .filter(p=>p!="");
+
+    players=uniquePlayers(players);
 
     if(players.length<2) return;
 
@@ -170,6 +203,7 @@ function allocateTeams(){
 
     teamsGlobal=[];
     points={};
+    semiWinners=[];
 
     for(let i=0;i<players.length;i+=2){
         if(i+1<players.length)
@@ -178,13 +212,12 @@ function allocateTeams(){
             teamsGlobal.push([players[i]]);
     }
 
-    let html="<h3>Teams</h3>";
-    html+=`<table><tr><th>Team</th><th>Points</th></tr>`;
+    let html="<h3>Teams</h3><table><tr><th>Team</th><th>Points</th></tr>";
 
     teamsGlobal.forEach(t=>{
         let name=t.join(" & ");
         points[name]=0;
-        html+=`<tr><td>${name}</td><td id="pt-${name}">0</td></tr>`;
+        html+=`<tr><td>${name}</td><td id="pt-${safeId(name)}">0</td></tr>`;
     });
 
     html+="</table>";
@@ -199,40 +232,11 @@ function createLeague(){
 
     for(let i=0;i<teamsGlobal.length;i++){
         for(let j=i+1;j<teamsGlobal.length;j++){
-            leagueMatches.push({
-                A:teamsGlobal[i],
-                B:teamsGlobal[j]
-            });
+            leagueMatches.push({A:teamsGlobal[i],B:teamsGlobal[j]});
         }
     }
 
     shuffle(leagueMatches);
-
-    let finalOrder=[];
-
-    while(leagueMatches.length>0){
-        let index=0;
-
-        if(finalOrder.length>0){
-            let last=finalOrder[finalOrder.length-1];
-
-            for(let i=0;i<leagueMatches.length;i++){
-                if(
-                    leagueMatches[i].A!==last.A &&
-                    leagueMatches[i].A!==last.B &&
-                    leagueMatches[i].B!==last.A &&
-                    leagueMatches[i].B!==last.B
-                ){
-                    index=i;
-                    break;
-                }
-            }
-        }
-
-        finalOrder.push(leagueMatches.splice(index,1)[0]);
-    }
-
-    leagueMatches=finalOrder;
 
     let html="<h3>League Matches</h3>";
 
@@ -263,7 +267,18 @@ function updatePoints(){
     });
 
     for(let t in points){
-        document.getElementById("pt-"+t).innerText=points[t];
+        document.getElementById("pt-"+safeId(t)).innerText=points[t];
+    }
+
+    if(teamsGlobal.length==2){
+        let winner="";
+        document.querySelectorAll("#leagueOutput select").forEach(sel=>{
+            if(sel.value) winner=sel.value;
+        });
+        if(winner){
+            selectChampion({value:winner});
+        }
+        return;
     }
 
     generateKnockouts();
@@ -271,75 +286,89 @@ function updatePoints(){
 
 function generateKnockouts(){
 
-    let sorted=Object.entries(points)
-        .sort((a,b)=>b[1]-a[1]);
-
+    let sorted=Object.entries(points).sort((a,b)=>b[1]-a[1]);
     let html="";
 
     if(teamsGlobal.length==3){
 
-        if(sorted[0][1]==sorted[1][1] &&
-           sorted[1][1]==sorted[2][1]){
-
+        if(sorted[0][1]==sorted[1][1] && sorted[1][1]==sorted[2][1]){
+            let teams=[sorted[0][0],sorted[1][0],sorted[2][0]];
+            shuffle(teams);
             html="<h3>Tie Break Match</h3>";
-            html+=`${sorted[0][0]} vs ${sorted[1][0]}`;
-        }
-        else{
+            html+=createTieBreak(teams[1],teams[2],teams[0]);
+        }else{
             html="<h3>Final</h3>";
             html+=createFinal(sorted[0][0],sorted[1][0]);
         }
     }
 
     else if(teamsGlobal.length>=4){
-
         html="<h3>Semi Finals</h3>";
-
         html+=createSemi(sorted[0][0],sorted[3][0],0);
         html+=createSemi(sorted[1][0],sorted[2][0],1);
-
         html+=`<div id="finalSection"></div>`;
     }
 
     document.getElementById("knockoutOutput").innerHTML=html;
 }
 
+function createTieBreak(A,B,finalist){
+    return `
+    <div class="match">
+    ${A.split(" & ")[0]} vs ${B.split(" & ")[0]}
+    <select onchange="tieBreakWinner(this,'${finalist}')">
+        <option value="">Winner</option>
+        <option value="${A}">${A.split(" & ")[0]}</option>
+        <option value="${B}">${B.split(" & ")[0]}</option>
+    </select>
+    </div>
+    <div id="finalSection"></div>`;
+}
+
+function tieBreakWinner(sel,finalist){
+    document.getElementById("finalSection").innerHTML=
+    "<h3>Final</h3>"+createFinal(sel.value,finalist);
+}
+
 function createSemi(A,B,index){
     return `
     <div class="match">
-    ${A} vs ${B}
+    ${A.split(" & ")[0]} vs ${B.split(" & ")[0]}
     <select onchange="selectSemiWinner(${index},this)">
         <option value="">Winner</option>
-        <option value="${A}">${A}</option>
-        <option value="${B}">${B}</option>
+        <option value="${A}">${A.split(" & ")[0]}</option>
+        <option value="${B}">${B.split(" & ")[0]}</option>
     </select>
     </div>`;
 }
 
-function selectSemiWinner(index,select){
-    semiWinners[index]=select.value;
-
+function selectSemiWinner(index,sel){
+    semiWinners[index]=sel.value;
     if(semiWinners[0] && semiWinners[1]){
         document.getElementById("finalSection").innerHTML=
-            "<h3>Final</h3>"+createFinal(semiWinners[0],semiWinners[1]);
+        "<h3>Final</h3>"+createFinal(semiWinners[0],semiWinners[1]);
     }
 }
 
 function createFinal(A,B){
     return `
     <div class="match">
-    ${A} vs ${B}
+    ${A.split(" & ")[0]} vs ${B.split(" & ")[0]}
     <select onchange="selectChampion(this)">
         <option value="">Winner</option>
-        <option value="${A}">${A}</option>
-        <option value="${B}">${B}</option>
+        <option value="${A}">${A.split(" & ")[0]}</option>
+        <option value="${B}">${B.split(" & ")[0]}</option>
     </select>
-    </div>
-    <div id="champion"></div>`;
+    </div>`;
 }
 
 function selectChampion(sel){
-    document.getElementById("champion").innerHTML=
-        "<h3>🏆 Champion: "+sel.value+"</h3>";
+    document.getElementById("champion").innerHTML=`
+    <div class="champion-box">
+        <div class="trophy">🏆</div>
+        <div class="champion-text">CHAMPIONS</div>
+        <div class="champion-name">${sel.value}</div>
+    </div>`;
 }
 
 </script>
