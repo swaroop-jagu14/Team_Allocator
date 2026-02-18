@@ -36,7 +36,7 @@ body::before{
 
 .card{
     width:90%;
-    max-width:600px;
+    max-width:650px;
     padding:40px 30px;
     border-radius:30px;
     backdrop-filter:blur(18px);
@@ -79,8 +79,49 @@ button{
 }
 
 .match{
-    margin:6px 0;
+    margin:8px 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
+
+select{
+    border-radius:10px;
+    padding:4px;
+}
+
+table{
+    width:100%;
+    margin-top:10px;
+}
+
+td,th{
+    padding:6px;
+}
+
+.champion-box{
+    margin:30px auto;
+    padding:25px 30px;
+    border-radius:20px;
+    text-align:center;
+    background:rgba(255,215,0,0.08);
+    border:1px solid rgba(255,215,0,0.4);
+    animation:championPop 0.6s ease;
+
+    max-width:350px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+#champion{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    width:100%;
+}
+
+
 </style>
 </head>
 
@@ -99,108 +140,206 @@ placeholder="Player1&#10;Player2&#10;Player3"></textarea>
 <button onclick="allocateTeams()">Allocate Teams</button>
 
 <div class="teams" id="teamOutput"></div>
-<div class="teams" id="tournamentOutput"></div>
+<div class="teams" id="leagueOutput"></div>
+<div class="teams" id="knockoutOutput"></div>
 
 </div>
 
 <script>
 
-// Shuffle function
+let teamsGlobal=[];
+let points={};
+let leagueMatches=[];
+let semiWinners=[];
+
 function shuffle(arr){
-    for(let i = arr.length - 1; i > 0; i--){
-        let j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+    for(let i=arr.length-1;i>0;i--){
+        let j=Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
     }
 }
 
 function allocateTeams(){
 
-    let players = document.getElementById("players").value.trim()
-        .split("\n")
-        .map(p => p.trim())
-        .filter(p => p !== "");
+    let players=document.getElementById("players").value.trim()
+        .split("\n").map(p=>p.trim()).filter(p=>p!="");
 
-    let teamOutput = document.getElementById("teamOutput");
-    let tournamentOutput = document.getElementById("tournamentOutput");
+    if(players.length<2) return;
 
-    teamOutput.innerHTML = "";
-    tournamentOutput.innerHTML = "";
-
-    if(players.length < 2){
-        teamOutput.innerHTML = "<p>Enter at least 2 players</p>";
-        return;
-    }
-
-    // STEP 1 — RANDOMIZE PLAYERS
     shuffle(players);
 
-    // STEP 2 — CREATE TEAMS OF SIZE 2
-    let teams = [];
+    teamsGlobal=[];
+    points={};
+
     for(let i=0;i<players.length;i+=2){
-        if(i+1 < players.length)
-            teams.push([players[i], players[i+1]]);
+        if(i+1<players.length)
+            teamsGlobal.push([players[i],players[i+1]]);
         else
-            teams.push([players[i]]);
+            teamsGlobal.push([players[i]]);
     }
 
-    // STEP 3 — DISPLAY TEAMS
-    let html = "<h3>Teams</h3>";
-    teams.forEach(team=>{
-        html += `<p><b>${team.join(" & ")}</b></p>`;
-    });
-    teamOutput.innerHTML = html;
+    let html="<h3>Teams</h3>";
+    html+=`<table><tr><th>Team</th><th>Points</th></tr>`;
 
-    // STEP 4 — CREATE ALL MATCHES
-    let matches = [];
-    for(let i=0;i<teams.length;i++){
-        for(let j=i+1;j<teams.length;j++){
-            matches.push({
-                A: teams[i],
-                B: teams[j]
+    teamsGlobal.forEach(t=>{
+        let name=t.join(" & ");
+        points[name]=0;
+        html+=`<tr><td>${name}</td><td id="pt-${name}">0</td></tr>`;
+    });
+
+    html+="</table>";
+    document.getElementById("teamOutput").innerHTML=html;
+
+    createLeague();
+}
+
+function createLeague(){
+
+    leagueMatches=[];
+
+    for(let i=0;i<teamsGlobal.length;i++){
+        for(let j=i+1;j<teamsGlobal.length;j++){
+            leagueMatches.push({
+                A:teamsGlobal[i],
+                B:teamsGlobal[j]
             });
         }
     }
 
-    // STEP 5 — RANDOMIZE MATCH ORDER
-    shuffle(matches);
+    shuffle(leagueMatches);
 
-    // STEP 6 — AVOID SAME TEAM IN CONSECUTIVE MATCHES
-    let finalMatches = [];
+    let finalOrder=[];
 
-    while(matches.length > 0){
+    while(leagueMatches.length>0){
+        let index=0;
 
-        let indexToPick = 0;
+        if(finalOrder.length>0){
+            let last=finalOrder[finalOrder.length-1];
 
-        if(finalMatches.length > 0){
-            let last = finalMatches[finalMatches.length - 1];
-
-            for(let i=0;i<matches.length;i++){
+            for(let i=0;i<leagueMatches.length;i++){
                 if(
-                    matches[i].A !== last.A &&
-                    matches[i].A !== last.B &&
-                    matches[i].B !== last.A &&
-                    matches[i].B !== last.B
+                    leagueMatches[i].A!==last.A &&
+                    leagueMatches[i].A!==last.B &&
+                    leagueMatches[i].B!==last.A &&
+                    leagueMatches[i].B!==last.B
                 ){
-                    indexToPick = i;
+                    index=i;
                     break;
                 }
             }
         }
 
-        finalMatches.push(matches.splice(indexToPick,1)[0]);
+        finalOrder.push(leagueMatches.splice(index,1)[0]);
     }
 
-    // STEP 7 — DISPLAY MATCHES USING PLAYER NAME
-    let matchHTML = "<h3>Tournament Matches</h3>";
+    leagueMatches=finalOrder;
 
-    finalMatches.forEach(m=>{
-        matchHTML += `
+    let html="<h3>League Matches</h3>";
+
+    leagueMatches.forEach(m=>{
+        let A=m.A.join(" & ");
+        let B=m.B.join(" & ");
+
+        html+=`
         <div class="match">
         ${m.A[0]} vs ${m.B[0]}
+        <select onchange="updatePoints()">
+            <option value="">Winner</option>
+            <option value="${A}">${m.A[0]}</option>
+            <option value="${B}">${m.B[0]}</option>
+        </select>
         </div>`;
     });
 
-    tournamentOutput.innerHTML = matchHTML;
+    document.getElementById("leagueOutput").innerHTML=html;
+}
+
+function updatePoints(){
+
+    for(let t in points) points[t]=0;
+
+    document.querySelectorAll("#leagueOutput select").forEach(sel=>{
+        if(sel.value) points[sel.value]++;
+    });
+
+    for(let t in points){
+        document.getElementById("pt-"+t).innerText=points[t];
+    }
+
+    generateKnockouts();
+}
+
+function generateKnockouts(){
+
+    let sorted=Object.entries(points)
+        .sort((a,b)=>b[1]-a[1]);
+
+    let html="";
+
+    if(teamsGlobal.length==3){
+
+        if(sorted[0][1]==sorted[1][1] &&
+           sorted[1][1]==sorted[2][1]){
+
+            html="<h3>Tie Break Match</h3>";
+            html+=`${sorted[0][0]} vs ${sorted[1][0]}`;
+        }
+        else{
+            html="<h3>Final</h3>";
+            html+=createFinal(sorted[0][0],sorted[1][0]);
+        }
+    }
+
+    else if(teamsGlobal.length>=4){
+
+        html="<h3>Semi Finals</h3>";
+
+        html+=createSemi(sorted[0][0],sorted[3][0],0);
+        html+=createSemi(sorted[1][0],sorted[2][0],1);
+
+        html+=`<div id="finalSection"></div>`;
+    }
+
+    document.getElementById("knockoutOutput").innerHTML=html;
+}
+
+function createSemi(A,B,index){
+    return `
+    <div class="match">
+    ${A} vs ${B}
+    <select onchange="selectSemiWinner(${index},this)">
+        <option value="">Winner</option>
+        <option value="${A}">${A}</option>
+        <option value="${B}">${B}</option>
+    </select>
+    </div>`;
+}
+
+function selectSemiWinner(index,select){
+    semiWinners[index]=select.value;
+
+    if(semiWinners[0] && semiWinners[1]){
+        document.getElementById("finalSection").innerHTML=
+            "<h3>Final</h3>"+createFinal(semiWinners[0],semiWinners[1]);
+    }
+}
+
+function createFinal(A,B){
+    return `
+    <div class="match">
+    ${A} vs ${B}
+    <select onchange="selectChampion(this)">
+        <option value="">Winner</option>
+        <option value="${A}">${A}</option>
+        <option value="${B}">${B}</option>
+    </select>
+    </div>
+    <div id="champion"></div>`;
+}
+
+function selectChampion(sel){
+    document.getElementById("champion").innerHTML=
+        "<h3>🏆 Champion: "+sel.value+"</h3>";
 }
 
 </script>
